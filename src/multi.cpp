@@ -66,6 +66,25 @@ void multi::remove(easy* easy_handle)
 	}
 }
 
+void multi::use_pipelining (bool value)
+{
+	const long nativeValue = (value ? CURLPIPE_HTTP1 : CURLPIPE_NOTHING);
+	boost::system::error_code ec(native::curl_multi_setopt(handle_, native::CURLMOPT_PIPELINING, nativeValue));
+	boost::asio::detail::throw_error(ec, "use_pipelining");
+}
+
+void multi::set_max_pipeline_legth (long num)
+{
+	boost::system::error_code ec(native::curl_multi_setopt(handle_, native::CURLMOPT_MAX_PIPELINE_LENGTH, num));
+	boost::asio::detail::throw_error(ec, "set_max_pipeline_legth");
+}
+
+void multi::set_max_connections (long num)
+{
+	boost::system::error_code ec(native::curl_multi_setopt(handle_, native::CURLMOPT_MAX_TOTAL_CONNECTIONS, num));
+	boost::asio::detail::throw_error(ec, "set_max_connections");
+}	
+
 void multi::socket_register(boost::shared_ptr<socket_info> si)
 {
 	socket_type::native_handle_type fd = si->socket->native_handle();

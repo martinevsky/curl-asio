@@ -38,6 +38,11 @@ namespace curl
 
 		void socket_register(boost::shared_ptr<socket_info> si);
 		void socket_cleanup(native::curl_socket_t s);
+		
+		void use_pipelining (bool value);
+		void set_max_pipeline_legth (long num);
+
+		void set_max_connections (long num);
 
 	private:
 		typedef boost::shared_ptr<socket_info> socket_info_ptr;
