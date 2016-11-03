@@ -4,7 +4,7 @@
 # Copyright (c) 2013 Oliver Kuckertz <oliver.kuckertz@mologie.de>
 # See COPYING for license information.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.2 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5 FATAL_ERROR)
 PROJECT(curl-asio)
 
 # Adjust the module path
@@ -46,9 +46,14 @@ IF(MSVC)
 	ENDIF()
 ENDIF()
 
+ADD_DEFINITIONS(-DBOOST_ASIO_ENABLE_HANDLER_TRACKING)
+
 # Find dependencies
 FIND_PACKAGE(CURLASIO-CURL REQUIRED)
 FIND_PACKAGE(Boost REQUIRED COMPONENTS chrono date_time system thread)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
 
 # Move along
 ADD_SUBDIRECTORY(src)
