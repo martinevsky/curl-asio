@@ -35,6 +35,10 @@ multi::multi(boost::asio::io_service& io_service):
 
 multi::~multi()
 {
+#ifdef BOOST_ASIO_ENABLE_HANDLER_TRACKING
+	std::cerr << "Closing multy, active handles: " << easy_handles_.size() << std::endl;
+#endif // BOOST_ASIO_ENABLE_HANDLER_TRACKING
+
 	while (!easy_handles_.empty())
 	{
 		easy_set_type::iterator it = easy_handles_.begin();
@@ -125,12 +129,17 @@ void multi::assign(native::curl_socket_t sockfd, void* user_data)
 void multi::socket_action(native::curl_socket_t s, int event_bitmask)
 {
 	boost::system::error_code ec(native::curl_multi_socket_action(handle_, s, event_bitmask, &still_running_));
+
+#ifdef BOOST_ASIO_ENABLE_HANDLER_TRACKING
+	std::cerr << "socket_action, still_running_: " << still_running_ << std::endl;
+#endif // BOOST_ASIO_ENABLE_HANDLER_TRACKING
+
 	boost::asio::detail::throw_error(ec);
 
 	if (!still_running())
 	{
 		timeout_.cancel();
-	}
+	}	
 }
 
 void multi::set_socket_function(socket_function_t socket_function)
@@ -197,6 +206,10 @@ void multi::process_messages()
 
 	while ((msg = native::curl_multi_info_read(handle_, &msgs_left)))
 	{
+#ifdef BOOST_ASIO_ENABLE_HANDLER_TRACKING
+	std::cerr << "process_messages, msgs_left: " << msgs_left << std::endl;
+#endif // BOOST_ASIO_ENABLE_HANDLER_TRACKING
+
 		if (msg->msg == native::CURLMSG_DONE)
 		{
 			easy* easy_handle = easy::from_native(msg->easy_handle);
@@ -209,6 +222,12 @@ void multi::process_messages()
 
 			remove(easy_handle);
 			easy_handle->handle_completion(ec);
+		}
+		else
+		{
+#ifdef BOOST_ASIO_ENABLE_HANDLER_TRACKING
+	std::cerr << "Unhandled message type: " << msg->msg << std::endl;
+#endif // BOOST_ASIO_ENABLE_HANDLER_TRACKING1			
 		}
 	}
 }
@@ -292,6 +311,10 @@ void multi::handle_socket_write(const boost::system::error_code& err, socket_inf
 
 void multi::handle_timeout(const boost::system::error_code& err)
 {
+#ifdef BOOST_ASIO_ENABLE_HANDLER_TRACKING
+	std::cerr << "Timer triggers" << std::endl;
+#endif // BOOST_ASIO_ENABLE_HANDLER_TRACKING
+
 	if (!err)
 	{
 		socket_action(CURL_SOCKET_TIMEOUT, 0);
@@ -352,6 +375,10 @@ int multi::socket(native::CURL* native_easy, native::curl_socket_t s, int what, 
 int multi::timer(native::CURLM* native_multi, long timeout_ms, void* userp)
 {
 	multi* self = static_cast<multi*>(userp);
+
+#ifdef BOOST_ASIO_ENABLE_HANDLER_TRACKING
+	std::cerr << "Timer to: " << timeout_ms << std::endl;
+#endif // BOOST_ASIO_ENABLE_HANDLER_TRACKING
 
 	if (timeout_ms > 0)
 	{
