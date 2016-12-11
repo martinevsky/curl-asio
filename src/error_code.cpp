@@ -10,15 +10,15 @@
 
 using namespace curl;
 
-class curl_easy_error_category : public boost::system::error_category
+class curl_easy_error_category : public std::error_category
 {
 public:
 	curl_easy_error_category() { }
-	const char* name() const BOOST_NOEXCEPT;
+	const char* name() const noexcept;
 	std::string message(int ev) const;
 };
 
-const char* curl_easy_error_category::name() const BOOST_NOEXCEPT
+const char* curl_easy_error_category::name() const noexcept
 {
 	return "curl-easy";
 }
@@ -28,15 +28,15 @@ std::string curl_easy_error_category::message(int ev) const
 	return native::curl_easy_strerror(static_cast<native::CURLcode>(ev));
 }
 
-class curl_multi_error_category : public boost::system::error_category
+class curl_multi_error_category : public std::error_category
 {
 public:
 	curl_multi_error_category() { }
-	const char* name() const BOOST_NOEXCEPT;
+	const char* name() const noexcept;
 	std::string message(int ev) const;
 };
 
-const char* curl_multi_error_category::name() const BOOST_NOEXCEPT
+const char* curl_multi_error_category::name() const noexcept
 {
 	return "curl-multi";
 }
@@ -46,15 +46,15 @@ std::string curl_multi_error_category::message(int ev) const
 	return native::curl_multi_strerror(static_cast<native::CURLMcode>(ev));
 }
 
-class curl_share_error_category : public boost::system::error_category
+class curl_share_error_category : public std::error_category
 {
 public:
 	curl_share_error_category() { }
-	const char* name() const BOOST_NOEXCEPT;
+	const char* name() const noexcept;
 	std::string message(int ev) const;
 };
 
-const char* curl_share_error_category::name() const BOOST_NOEXCEPT
+const char* curl_share_error_category::name() const noexcept
 {
 	return "curl-share";
 }
@@ -64,15 +64,15 @@ std::string curl_share_error_category::message(int ev) const
 	return native::curl_share_strerror(static_cast<native::CURLSHcode>(ev));
 }
 
-class curl_form_error_category : public boost::system::error_category
+class curl_form_error_category : public std::error_category
 {
 public:
 	curl_form_error_category() { }
-	const char* name() const BOOST_NOEXCEPT;
+	const char* name() const noexcept;
 	std::string message(int ev) const;
 };
 
-const char* curl_form_error_category::name() const BOOST_NOEXCEPT
+const char* curl_form_error_category::name() const noexcept
 {
 	return "curl-form";
 }
@@ -110,25 +110,25 @@ std::string curl_form_error_category::message(int ev) const
 	}
 }
 
-const boost::system::error_category& errc::get_easy_category() BOOST_NOEXCEPT
+const std::error_category& errc::get_easy_category() noexcept
 {
 	static const curl_easy_error_category curl_easy_category_const;
 	return curl_easy_category_const;
 }
 
-const boost::system::error_category& errc::get_multi_category() BOOST_NOEXCEPT
+const std::error_category& errc::get_multi_category() noexcept
 {
 	static const curl_multi_error_category curl_multi_category_const;
 	return curl_multi_category_const;
 }
 
-const boost::system::error_category& errc::get_share_category() BOOST_NOEXCEPT
+const std::error_category& errc::get_share_category() noexcept
 {
 	static const curl_share_error_category curl_share_category_const;
 	return curl_share_category_const;
 }
 
-const boost::system::error_category& errc::get_form_category() BOOST_NOEXCEPT
+const std::error_category& errc::get_form_category() noexcept
 {
 	static const curl_form_error_category curl_form_category_const;
 	return curl_form_category_const;

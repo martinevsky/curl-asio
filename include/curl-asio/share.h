@@ -9,20 +9,23 @@
 #pragma once
 
 #include "config.h"
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/thread/mutex.hpp>
+
+#include <asio.hpp>
+
+#include <memory>
+#include <mutex>
+
 #include "initialization.h"
 #include "native.h"
 
 namespace curl
 {
 	class CURLASIO_API share:
-		public boost::enable_shared_from_this<share>,
-		public boost::noncopyable
+		public std::enable_shared_from_this<share>
 	{
 	public:
 		share();
+		share(const share&) = delete;
 		~share();
 
 		inline native::CURLSH* native_handle() { return handle_; }
@@ -44,6 +47,6 @@ namespace curl
 
 		initialization::ptr initref_;
 		native::CURLSH* handle_;
-		boost::mutex mutex_;
+		std::mutex mutex_;
 	};
 }

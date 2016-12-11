@@ -9,7 +9,9 @@
 #pragma once
 
 #include "config.h"
-#include <boost/system/error_code.hpp>
+
+#include <system_error>
+
 #include "native.h"
 
 namespace curl
@@ -144,57 +146,54 @@ namespace curl
 			};
 		}
 
-		const boost::system::error_category& get_easy_category() BOOST_NOEXCEPT;
-		const boost::system::error_category& get_multi_category() BOOST_NOEXCEPT;
-		const boost::system::error_category& get_share_category() BOOST_NOEXCEPT;
-		const boost::system::error_category& get_form_category() BOOST_NOEXCEPT;
+		const std::error_category& get_easy_category() noexcept;
+		const std::error_category& get_multi_category() noexcept;
+		const std::error_category& get_share_category() noexcept;
+		const std::error_category& get_form_category() noexcept;
 	}
 }
 
-namespace boost
+namespace std
 {
-	namespace system
+	template<> struct is_error_code_enum<curl::errc::easy::easy_error_codes>
 	{
-		template<> struct is_error_code_enum<curl::errc::easy::easy_error_codes>
-		{
-			static const bool value = true;
-		};
+		static const bool value = true;
+	};
 
-		template<> struct is_error_code_enum<curl::native::CURLcode>
-		{
-			static const bool value = true;
-		};
+	template<> struct is_error_code_enum<curl::native::CURLcode>
+	{
+		static const bool value = true;
+	};
 
-		template<> struct is_error_code_enum<curl::errc::multi::multi_error_codes>
-		{
-			static const bool value = true;
-		};
+	template<> struct is_error_code_enum<curl::errc::multi::multi_error_codes>
+	{
+		static const bool value = true;
+	};
 
-		template<> struct is_error_code_enum<curl::native::CURLMcode>
-		{
-			static const bool value = true;
-		};
+	template<> struct is_error_code_enum<curl::native::CURLMcode>
+	{
+		static const bool value = true;
+	};
 
-		template<> struct is_error_code_enum<curl::errc::share::share_error_codes>
-		{
-			static const bool value = true;
-		};
+	template<> struct is_error_code_enum<curl::errc::share::share_error_codes>
+	{
+		static const bool value = true;
+	};
 
-		template<> struct is_error_code_enum<curl::native::CURLSHcode>
-		{
-			static const bool value = true;
-		};
+	template<> struct is_error_code_enum<curl::native::CURLSHcode>
+	{
+		static const bool value = true;
+	};
 
-		template<> struct is_error_code_enum<curl::errc::form::form_error_codes>
-		{
-			static const bool value = true;
-		};
+	template<> struct is_error_code_enum<curl::errc::form::form_error_codes>
+	{
+		static const bool value = true;
+	};
 
-		template<> struct is_error_code_enum<curl::native::CURLFORMcode>
-		{
-			static const bool value = true;
-		};
-	}
+	template<> struct is_error_code_enum<curl::native::CURLFORMcode>
+	{
+		static const bool value = true;
+	};
 }
 
 namespace curl
@@ -203,55 +202,55 @@ namespace curl
 	{
 		namespace easy
 		{
-			inline boost::system::error_code make_error_code(easy_error_codes e)
+			inline std::error_code make_error_code(easy_error_codes e)
 			{
-				return boost::system::error_code(static_cast<int>(e), get_easy_category());
+				return std::error_code(static_cast<int>(e), get_easy_category());
 			}
 		}
 
 		namespace multi
 		{
-			inline boost::system::error_code make_error_code(multi_error_codes e)
+			inline std::error_code make_error_code(multi_error_codes e)
 			{
-				return boost::system::error_code(static_cast<int>(e), get_multi_category());
+				return std::error_code(static_cast<int>(e), get_multi_category());
 			}
 		}
 
 		namespace share
 		{
-			inline boost::system::error_code make_error_code(share_error_codes e)
+			inline std::error_code make_error_code(share_error_codes e)
 			{
-				return boost::system::error_code(static_cast<int>(e), get_share_category());
+				return std::error_code(static_cast<int>(e), get_share_category());
 			}
 		}
 
 		namespace form
 		{
-			inline boost::system::error_code make_error_code(form_error_codes e)
+			inline std::error_code make_error_code(form_error_codes e)
 			{
-				return boost::system::error_code(static_cast<int>(e), get_form_category());
+				return std::error_code(static_cast<int>(e), get_form_category());
 			}
 		}
 	}
 
 	namespace native
 	{
-		inline boost::system::error_code make_error_code(CURLcode e)
+		inline std::error_code make_error_code(CURLcode e)
 		{
 			return make_error_code(static_cast<errc::easy::easy_error_codes>(e));
 		}
 
-		inline boost::system::error_code make_error_code(CURLMcode e)
+		inline std::error_code make_error_code(CURLMcode e)
 		{
 			return make_error_code(static_cast<errc::multi::multi_error_codes>(e));
 		}
 
-		inline boost::system::error_code make_error_code(CURLSHcode e)
+		inline std::error_code make_error_code(CURLSHcode e)
 		{
 			return make_error_code(static_cast<errc::share::share_error_codes>(e));
 		}
 
-		inline boost::system::error_code make_error_code(CURLFORMcode e)
+		inline std::error_code make_error_code(CURLFORMcode e)
 		{
 			return make_error_code(static_cast<errc::form::form_error_codes>(e));
 		}

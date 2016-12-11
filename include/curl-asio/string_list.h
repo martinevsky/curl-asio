@@ -9,21 +9,23 @@
 #pragma once
 
 #include "config.h"
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/noncopyable.hpp>
+
+#include <memory>
 #include <string>
+
 #include "initialization.h"
 #include "native.h"
 
 namespace curl
 {
 	class CURLASIO_API string_list:
-		public boost::enable_shared_from_this<string_list>,
-		public boost::noncopyable
+		public std::enable_shared_from_this<string_list>
 	{
 	public:
 		string_list();
 		~string_list();
+
+		string_list (const string_list&) = delete;
 
 		inline native::curl_slist* native_handle() { return list_; }
 

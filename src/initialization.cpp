@@ -6,16 +6,19 @@
 	Helper to automatically initialize and cleanup libcurl resources
 */
 
-#include <boost/lexical_cast.hpp>
-#include <boost/thread.hpp>
-#include <boost/weak_ptr.hpp>
+#include <thread>
+#include <mutex>
+#include <memory>
+
 #include <curl-asio/initialization.h>
 #include <curl-asio/native.h>
 
 using namespace curl;
 
-boost::weak_ptr<initialization> helper_instance;
-boost::mutex helper_lock;
+std::weak_ptr<initialization> helper_instance;
+std::mutex helper_lock;
+
+
 
 initialization::ptr initialization::ensure_initialization()
 {
@@ -23,12 +26,12 @@ initialization::ptr initialization::ensure_initialization()
 	
 	if (!result)
 	{
-		boost::lock_guard<boost::mutex> lock(helper_lock);
+		std::lock_guard<std::mutex> lock(helper_lock);
 		result = helper_instance.lock();
 
 		if (!result)
 		{
-			result = boost::shared_ptr<initialization>(new initialization());
+			result = ptr (new initialization());
 			helper_instance = result;
 		}
 	}
@@ -42,7 +45,7 @@ initialization::initialization()
 
 	if (ec != native::CURLE_OK)
 	{
-		throw std::runtime_error("curl_global_init failed with error code " + boost::lexical_cast<std::string>(ec));
+		throw std::runtime_error("curl_global_init failed");
 	}
 }
 

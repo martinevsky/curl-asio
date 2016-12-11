@@ -1,0 +1,4 @@
+[submodule "curl"]
+	shallow = true
+[submodule "asio"]
+	shallow = true

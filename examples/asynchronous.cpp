@@ -1,29 +1,27 @@
 #include <curl-asio.h>
-#include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/ptr_container/ptr_set.hpp>
+
 #include <iostream>
 #include <fstream>
-#include <experimental/string_view>
-#include <memory> // for std::auto_ptr
+#include <memory>
+#include <set>
 
-boost::ptr_set<curl::easy> active_downloads;
+std::set<std::unique_ptr<curl::easy>> active_downloads;
 
 size_t completed = 0;
 
-void handle_download_completed(const boost::system::error_code& err, std::string url, curl::easy* easy)
+void handle_download_completed(const std::error_code& err, std::string url, curl::easy* easy)
 {
 	++completed;
-/*	if (!err)
+	if (!err)
 	{
 		std::cout << "Download of " << url << " completed" << std::endl;
 	}
 	else
 	{
 		std::cout << "Download of " << url << " failed: " << err.message() << std::endl;
-	}*/
+	}//*/
 	
-	active_downloads.erase(*easy);
+	//active_downloads.erase (easy);
 }
 
 size_t null_write_function (char* ptr, size_t size, size_t nmemb, void* userdata)
@@ -34,15 +32,15 @@ size_t null_write_function (char* ptr, size_t size, size_t nmemb, void* userdata
 
 int debug_callback (curl::native::CURL*, curl::native::curl_infotype type, char* str, size_t strSize, void*)
 {
-	if (type == curl::native::CURLINFO_TEXT || type == curl::native::CURLINFO_HEADER_IN || type == curl::native::CURLINFO_HEADER_OUT)
-		std::cout << std::experimental::string_view (str, strSize);
+/*	if (type == curl::native::CURLINFO_TEXT || type == curl::native::CURLINFO_HEADER_IN || type == curl::native::CURLINFO_HEADER_OUT)
+		std::cout << std::string_view (str, strSize);*/
 
 	return 0;
 }
 
 void start_download(curl::multi& multi, const std::string& url)
 {
-	std::auto_ptr<curl::easy> easy(new curl::easy(multi));
+	std::unique_ptr<curl::easy> easy = std::make_unique<curl::easy>(multi);
 	
 	// see 'Use server-provided file names' example for a more detailed implementation of this function which receives
 	// the target file name from the server using libcurl's header callbacks
@@ -55,11 +53,11 @@ void start_download(curl::multi& multi, const std::string& url)
 
 	//easy->set_max_connects (3);
 	
-	//easy->set_sink(boost::make_shared<std::ofstream>(("./out/" + file_name).c_str(), std::ios::binary));
+	//easy->set_sink(std::make_shared<std::ofstream>(("./out/" + file_name).c_str(), std::ios::binary));
 	easy->set_write_function (&null_write_function);
-	easy->async_perform(boost::bind(handle_download_completed, boost::asio::placeholders::error, url, easy.get()));
+	easy->async_perform(std::bind(handle_download_completed, std::placeholders::_1, url, easy.get()));
 	
-	active_downloads.insert(easy);
+	active_downloads.emplace (std::move (easy));
 }
 
 int main (int argc, char* argv[])
@@ -74,11 +72,11 @@ try
 		std::cout.sync_with_stdio (false);
 
 		// start by creating an io_service object
-		boost::asio::io_service io_service;
+		asio::io_service io_service;
 		
 		// construct an instance of curl::multi
 		curl::multi manager(io_service);
-		//manager.use_pipelining (true);
+		manager.use_pipelining (true);
 		manager.set_max_pipeline_legth (50);
 		manager.set_max_connections (10);
 
@@ -90,11 +88,9 @@ try
 			std::string url;
 			std::getline(url_file, url);
 			start_download(manager, url);
-			if (++counter > 4800000000000000)
-				break;//*/
 		}
 
-		// let Boost.Asio do its magic
+		// let Asio do its magic
 		const auto handlersProcessed = io_service.run();
 		std::cout << "Asio handlers: " << handlersProcessed << std::endl; 	
 	}

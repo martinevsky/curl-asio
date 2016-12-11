@@ -7,6 +7,16 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5 FATAL_ERROR)
 PROJECT(curl-asio)
 
+# Local curl and options
+SET(CURL_ROOT "external/curl")
+SET(BUILD_CURL_EXE OFF CACHE BOOL "")
+SET(BUILD_TESTING OFF CACHE BOOL "")
+SET(CURL_STATICLIB ON CACHE BOOL "")
+SET(HTTP_ONLY ON CACHE BOOL "")
+SET(CURL_DISABLE_COOKIES ON CACHE BOOL "")
+INCLUDE_DIRECTORIES (${CURL_BINARY_DIR}/include/curl)
+ADD_SUBDIRECTORY (external/curl)
+
 # Adjust the module path
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
@@ -31,7 +41,7 @@ ENDIF()
 
 IF(MSVC)
 	# Select Windows version
-	OPTION(ENABLE_VISTA_FEATURES "Enable Vista features. This disables some workarounds, but sacrifices Windows XP compatibility." OFF)
+	OPTION(ENABLE_VISTA_FEATURES "Enable Vista features. This disables some workarounds, but sacrifices Windows XP compatibility." ON)
 	IF(ENABLE_VISTA_FEATURES)
 		SET(TARGET_WINDOWS_VERSION 0x0600)
 	ELSE()
@@ -40,7 +50,7 @@ IF(MSVC)
 	ADD_DEFINITIONS(-D_WIN32_WINNT=${TARGET_WINDOWS_VERSION})
 	
 	# Disable using __declspec(dllimport) when linking statically
-	OPTION(CURL_IS_STATIC "Check if libcurl is a static library" OFF)
+	OPTION(CURL_IS_STATIC "Check if libcurl is a static library" ON)
 	IF(CURL_IS_STATIC)
 		ADD_DEFINITIONS(-DCURL_STATICLIB)
 	ENDIF()
@@ -51,7 +61,10 @@ ENDIF()
 
 # Find dependencies
 FIND_PACKAGE(CURLASIO-CURL REQUIRED)
-FIND_PACKAGE(Boost REQUIRED COMPONENTS chrono date_time system thread)
+#FIND_PACKAGE(Boost REQUIRED COMPONENTS chrono date_time system thread)
+
+ADD_DEFINITIONS(-DASIO_STANDALONE)
+INCLUDE_DIRECTORIES (${CMAKE_CURRENT_SOURCE_DIR}/external/asio/asio/include)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
